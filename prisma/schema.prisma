@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comments {
+  ID          Int      @id @default(autoincrement())
+  Text        String   @db.VarChar(255)
+  UserID      Int
+  PostID      Int
+  DateCreated DateTime @db.Date
+  posts       posts    @relation(fields: [PostID], references: [ID], onUpdate: Restrict, map: "comments_ibfk_1")
+  users       users    @relation(fields: [UserID], references: [ID], onUpdate: Restrict, map: "comments_ibfk_2")
+
+  @@index([PostID], map: "PostID")
+  @@index([UserID], map: "UserID")
+}
+
+model likes {
+  ID          Int      @id @default(autoincrement())
+  UserID      Int
+  PostID      Int
+  DateCreated DateTime @db.Date
+  posts       posts    @relation(fields: [PostID], references: [ID], onUpdate: Restrict, map: "likes_ibfk_1")
+  users       users    @relation(fields: [UserID], references: [ID], onUpdate: Restrict, map: "likes_ibfk_2")
+
+  @@index([PostID], map: "PostID")
+  @@index([UserID], map: "UserID")
+}
+
+model posts {
+  ID          Int        @id @default(autoincrement())
+  Text        String     @db.VarChar(255)
+  Image       String     @db.VarChar(255)
+  AuthorID    Int
+  DateCreated DateTime   @db.Date
+  comments    comments[]
+  likes       likes[]
+  users       users      @relation(fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "posts_ibfk_1")
+
+  @@index([AuthorID], map: "AuthorID")
+}
+
+model relationships {
+  ID                                    Int      @id @default(autoincrement())
+  FollowerID                            Int
+  FollowedID                            Int
+  DateCreated                           DateTime @db.Date
+  users_relationships_FollowedIDTousers users    @relation("relationships_FollowedIDTousers", fields: [FollowedID], references: [ID], onUpdate: Restrict, map: "relationships_ibfk_1")
+  users_relationships_FollowerIDTousers users    @relation("relationships_FollowerIDTousers", fields: [FollowerID], references: [ID], onUpdate: Restrict, map: "relationships_ibfk_2")
+
+  @@index([FollowedID], map: "FollowedID")
+  @@index([FollowerID], map: "FollowerID")
+}
+
+model users {
+  ID                                            Int             @id @default(autoincrement())
+  Username                                      String          @db.VarChar(50)
+  Handle                                        String          @db.VarChar(50)
+  Password                                      String          @db.VarChar(255)
+  Email                                         String          @db.VarChar(255)
+  ProfilePicture                                String          @db.VarChar(255)
+  Banner                                        String          @db.VarChar(255)
+  SignUpDate                                    DateTime        @db.Date
+  comments                                      comments[]
+  likes                                         likes[]
+  posts                                         posts[]
+  relationships_relationships_FollowedIDTousers relationships[] @relation("relationships_FollowedIDTousers")
+  relationships_relationships_FollowerIDTousers relationships[] @relation("relationships_FollowerIDTousers")
+}
