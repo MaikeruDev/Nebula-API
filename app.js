@@ -1,15 +1,20 @@
-var express = require('express')
+const express = require('express')
 var app = express() 
+const cors = require('cors')
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient() 
 
+app.use(cors())
+app.use(express.json())
+
 app.get("/", async (req, res) => {
-    const user = await prisma.users.findUnique({
-        where: { ID: 2 }
-      })
-      res.send(user)
+    console.log("Status | Sent Status 200 -> OK")
+    res.sendStatus(200)
 })
 
+const getPosts = require('./routes/posts')
+app.use('/posts', getPosts)
+
 app.listen(3100, function() {
-    console.log("Listening to port 3100")
+    console.log("Starting | Listening to port 3100")
 })
