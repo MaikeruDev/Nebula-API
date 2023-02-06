@@ -62,7 +62,7 @@ model users {
   Username                                      String          @db.VarChar(50)
   Handle                                        String          @db.VarChar(50)
   Password                                      String          @db.VarChar(255)
-  Email                                         String          @db.VarChar(255)
+  Email                                         String          @unique(map: "Email") @db.VarChar(255)
   ProfilePicture                                String          @db.VarChar(255)
   Banner                                        String          @db.VarChar(255)
   SignUpDate                                    DateTime        @db.Date
