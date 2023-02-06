@@ -66,6 +66,7 @@ model users {
   ProfilePicture                                String          @db.VarChar(255)
   Banner                                        String          @db.VarChar(255)
   SignUpDate                                    DateTime        @db.Date
+  Bio                                           String?         @db.VarChar(100)
   comments                                      comments[]
   likes                                         likes[]
   posts                                         posts[]

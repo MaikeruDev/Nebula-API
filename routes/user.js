@@ -17,7 +17,11 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
   router.get('/databyuserid/:userid', passport.authenticate('authentication', { session: false }), async (req, res) => {
     const userId = parseInt(req.params.userid)
     const user = await prisma.users.findUnique({
-      where: { ID: userId }
+      where: { ID: userId },
+      include: {
+        relationships_relationships_FollowedIDTousers: true,
+        relationships_relationships_FollowerIDTousers: true
+      }
     })
     if (!user) {
       helper.resSend(res, null, helper.resStatuses.error, 'User with the id ' + userId.toString() + " doesn't exist")

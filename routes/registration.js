@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
 
+const bcrypt = require('bcrypt')
+
 const helper = require('../helper')
 
 const passport = require('passport')
@@ -63,6 +65,34 @@ router.post('/register', async (req, res) => {
         req.body.handle
     )
     helper.resSend(res, { token: usertoken })
+})
+
+router.post('/login', async (req, res) => {
+    if (!req.body.email || !req.body.password) {
+      return res.json({ message: 'Empty fields!' })
+    } else {
+      const user = await prisma.users.findFirst({
+        where: { Email: req.body.email }
+      })
+      if (!user) {
+        helper.resSend(res, null, helper.resStatuses.error, 'This user does not exist!')
+        return
+      } 
+      if (req.body.password == user.Password){
+        const usertoken = helper.createJWT(
+            user.ID,
+            user.Email,
+            user.Username,
+            user.Handle
+          ) 
+
+          const answer = { token: usertoken }
+          helper.resSend(res, answer)
+      }
+      else{
+        helper.resSend(res, null, helper.resStatuses.error, 'Wrong password!')
+      } 
+    }
   })
 
 module.exports = router
