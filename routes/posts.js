@@ -6,8 +6,9 @@ const passport = require('passport')
 const { PrismaClient } = require('@prisma/client') 
 const prisma = new PrismaClient()
 
-router.get('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
   console.log("Posts | Returned newest posts")
+    post_skip = req.body.skip
     const followedUsers = await prisma.relationships.findMany({
       where: { 
         FollowerID: req.user.ID
@@ -30,7 +31,8 @@ router.get('/getPosts', passport.authenticate('authentication', { session: false
         likes: true,
         users: true
       },
-      take: 10,
+      take: 15,
+      skip: post_skip, 
       orderBy: {
         DateCreated: 'desc'
       }
