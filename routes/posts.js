@@ -22,9 +22,18 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
 
     const posts = await prisma.posts.findMany({
       where: {
-        AuthorID: {
-          in: followedUserIds
-        },
+        OR: [
+          {
+            AuthorID: {
+              in: followedUserIds
+            }
+          },
+          {
+            AuthorID: {
+              in: req.user.ID
+            }
+          }
+        ] 
       },
       include: {
         comments: true,
@@ -36,7 +45,7 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
       orderBy: {
         DateCreated: 'desc'
       }
-    });
+    }); 
     res.send(posts)
   })
 
