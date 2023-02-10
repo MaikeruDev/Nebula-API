@@ -37,7 +37,7 @@ model posts {
   Text        String     @db.VarChar(255)
   Image       String     @db.MediumText
   AuthorID    Int
-  DateCreated DateTime   @db.Date
+  DateCreated DateTime   @default(now()) @db.DateTime(0)
   comments    comments[]
   likes       likes[]
   users       users      @relation(fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "posts_ibfk_1")
