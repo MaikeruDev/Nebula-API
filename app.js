@@ -3,6 +3,9 @@ const app = express()
 const cors = require('cors')
 const passport = require('passport') 
 
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
+
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));

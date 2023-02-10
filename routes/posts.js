@@ -36,7 +36,11 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
         ] 
       },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            users: true
+          }
+        },
         likes: true,
         users: true
       },
@@ -60,7 +64,11 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
         }
       },
       include: {
-        comments: true,
+        comments: {
+          include: {
+            users: true
+          }
+        },
         likes: true,
         users: true
       },
