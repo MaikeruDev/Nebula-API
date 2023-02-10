@@ -49,4 +49,28 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
     res.send(posts)
   })
 
+router.post('/getOwnPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+  console.log("Posts | Returned own posts")
+    post_skip = req.body.skip
+
+    const posts = await prisma.posts.findMany({
+      where: {
+        AuthorID: {
+          in: req.user.ID
+        }
+      },
+      include: {
+        comments: true,
+        likes: true,
+        users: true
+      },
+      take: 15,
+      skip: post_skip, 
+      orderBy: {
+        DateCreated: 'desc'
+      }
+    }); 
+    res.send(posts)
+  })
+
 module.exports = router
