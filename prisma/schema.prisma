@@ -35,7 +35,7 @@ model likes {
 model posts {
   ID          Int        @id @default(autoincrement())
   Text        String     @db.VarChar(255)
-  Image       String     @db.VarChar(255)
+  Image       String     @db.MediumText
   AuthorID    Int
   DateCreated DateTime   @db.Date
   comments    comments[]

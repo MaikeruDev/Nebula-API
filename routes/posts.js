@@ -7,24 +7,6 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 router.get('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  //req.user.id
-  console.log("Posts | Returned newest posts")
-    const posts = await prisma.posts.findMany({
-      orderBy:[{ 
-        DateCreated: 'asc'
-      }],  
-      take: 1,
-      include: {
-        users: true,
-        likes: true,
-        comments: true,
-      }
-    })
-    res.send(posts)
-  })
-
-router.get('/testPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  
   console.log("Posts | Returned newest posts")
     const followedUsers = await prisma.relationships.findMany({
       where: { 
