@@ -30,4 +30,57 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     helper.resSend(res, user)
   })
 
+  router.post('/searchUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
+    const searchTerm = req.body.searchTerm
+    const users = await prisma.users.findMany({
+      where: {
+        OR: [
+          {
+            Username: {
+              contains: searchTerm
+            }
+          },
+          {
+            Handle: {
+              contains: searchTerm
+            }
+          }
+        ]
+      },
+    });
+  
+    const sortedUsers = sortByUsernameAndHandle(users, searchTerm)
+  
+    helper.resSend(res, sortedUsers)
+  })
+
+  function sortByUsernameAndHandle(array, searchTerm) {
+    return array.sort((a, b) => {
+      const aUsernameMatch = a.Username.toLowerCase().indexOf(searchTerm.toLowerCase());
+      const bUsernameMatch = b.Username.toLowerCase().indexOf(searchTerm.toLowerCase());
+      const aHandleMatch = a.Handle.toLowerCase().indexOf(searchTerm.toLowerCase());
+      const bHandleMatch = b.Handle.toLowerCase().indexOf(searchTerm.toLowerCase());
+  
+      if (aUsernameMatch !== -1 && bUsernameMatch !== -1) {
+        return aUsernameMatch - bUsernameMatch;
+      }
+      if (aUsernameMatch !== -1) {
+        return -1;
+      }
+      if (bUsernameMatch !== -1) {
+        return 1;
+      }
+      if (aHandleMatch !== -1 && bHandleMatch !== -1) {
+        return aHandleMatch - bHandleMatch;
+      }
+      if (aHandleMatch !== -1) {
+        return -1;
+      }
+      if (bHandleMatch !== -1) {
+        return 1;
+      }
+      return 0;
+    });
+  } 
+
 module.exports = router

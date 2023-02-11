@@ -65,7 +65,7 @@ model users {
   Email                                         String          @unique(map: "Email") @db.VarChar(255)
   ProfilePicture                                String          @db.VarChar(255)
   Banner                                        String          @db.VarChar(255)
-  SignUpDate                                    DateTime        @db.Date
+  SignUpDate                                    DateTime        @default(now()) @db.DateTime(0)
   Bio                                           String?         @db.VarChar(100)
   comments                                      comments[]
   likes                                         likes[]

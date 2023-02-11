@@ -4,7 +4,9 @@ const cors = require('cors')
 const passport = require('passport') 
 
 const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const prisma = new PrismaClient() 
+
+const casual = require('casual');
 
 app.use(cors())
 app.use(express.json())
@@ -29,4 +31,4 @@ app.get("/", async (req, res) => {
 
 app.listen(3100, function() {
     console.log("Starting | Listening to port 3100")
-})
+}) 

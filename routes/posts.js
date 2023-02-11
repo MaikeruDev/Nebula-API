@@ -4,6 +4,7 @@ var router = express.Router()
 const passport = require('passport')
 
 const { PrismaClient } = require('@prisma/client') 
+const helper = require('../helper')
 const prisma = new PrismaClient()
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
@@ -50,7 +51,8 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
         DateCreated: 'desc'
       }
     }); 
-    res.send(posts)
+    //res.send(posts)
+    helper.resSend(res, posts)
   })
 
 router.post('/getOwnPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
@@ -78,7 +80,8 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
         DateCreated: 'desc'
       }
     }); 
-    res.send(posts)
+    //res.send(posts)
+    helper.resSend(res, posts)
   })
 
 module.exports = router
