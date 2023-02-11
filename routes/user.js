@@ -54,6 +54,39 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     helper.resSend(res, sortedUsers)
   })
 
+  router.post('/getRandomUsers', passport.authenticate('authentication', { session: false }), async (req, res) => {
+    const amount = req.body.amount
+    const userAmount = await prisma.users.count() - amount
+    randomNumber = Math.floor(Math.random() * (userAmount - 1 + 2))
+    
+
+    users = await prisma.users.findMany({
+      skip: randomNumber,
+      take: amount,
+      where: {
+        NOT: {
+          ID: req.user.ID,
+        }
+      }
+    });
+    
+    while(users.length < 3){
+      users = []
+      randomNumber = Math.floor(Math.random() * (userAmount - 1 + 2))
+      users = await prisma.users.findMany({
+        skip: randomNumber,
+        take: amount,
+        where: {
+          NOT: {
+            ID: req.user.ID,
+          }
+        }
+      });
+    }
+
+    helper.resSend(res, users)
+  })  
+
   function sortByUsernameAndHandle(array, searchTerm) {
     return array.sort((a, b) => {
       const aUsernameMatch = a.Username.toLowerCase().indexOf(searchTerm.toLowerCase());
