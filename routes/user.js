@@ -67,6 +67,13 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
         NOT: {
           ID: req.user.ID,
         }
+      },
+      include:{
+        relationships_relationships_FollowedIDTousers:{
+          where: {
+            FollowerID: req.user.ID
+          }
+        } 
       }
     });
     
@@ -80,9 +87,18 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
           NOT: {
             ID: req.user.ID,
           }
+        },
+        include:{
+          relationships_relationships_FollowedIDTousers: {
+            where: {
+              FollowerID: req.user.ID
+            }
+          }  
         }
       });
     }
+
+    console.log(users)
 
     helper.resSend(res, users)
   })  
