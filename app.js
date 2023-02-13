@@ -9,8 +9,6 @@ const prisma = new PrismaClient()
 
 const casual = require('casual');
 
-/* helper.saveLog(); */
-
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({extended: true}));

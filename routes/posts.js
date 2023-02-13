@@ -89,13 +89,23 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
   helper.resSend(res, posts)
 })
 
-router.get('/getPostsAmount', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  let action = "Requests the amount of all post";
+router.post('/newPost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+  let action = "Is trying to create a post";
   helper.saveLog(action, req.user.Handle)
 
-  const posts = await prisma.posts.count()
+  let Text = req.body.Text;
+  let Image = req.body.Image;
+  let AuthorID = req.user.ID;
 
-  helper.resSend(res, posts)
+  await prisma.posts.create({
+    data: {
+        Text: Text,
+        Image: Image,
+        AuthorID: AuthorID,
+    }
+  })
+
+  helper.resSend(res)
 })
 
 module.exports = router
