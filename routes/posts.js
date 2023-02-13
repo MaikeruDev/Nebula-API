@@ -10,9 +10,11 @@ const prisma = new PrismaClient()
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
   let amountOfPosts = 15;
-  let action = "Returned the newest " + amountOfPosts + " posts";
+  post_skip = req.body.skip
+  let action = "";
+  action = "Returned the newest " + amountOfPosts + " posts";
+  if(post_skip > 0) action = "Returned " + amountOfPosts + " posts";
   helper.saveLog(action, req.user.Handle);
-    post_skip = req.body.skip
     const followedUsers = await prisma.relationships.findMany({
       where: { 
         FollowerID: req.user.ID
