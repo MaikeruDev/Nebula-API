@@ -11,7 +11,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 router.post('/register', async (req, res) => { 
-  
+/*     let action = ""
+    helper.saveLog() */
     if (!req.body.email || !req.body.username || !req.body.handle || !req.body.password) {
         helper.resSend(res, null, helper.resStatuses.error, 'Empty fields!')
         return

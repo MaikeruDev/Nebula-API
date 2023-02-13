@@ -2,11 +2,14 @@ const express = require('express')
 const app = express() 
 const cors = require('cors')
 const passport = require('passport') 
+const helper = require('./helper')
 
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient() 
 
 const casual = require('casual');
+
+/* helper.saveLog(); */
 
 app.use(cors())
 app.use(express.json())

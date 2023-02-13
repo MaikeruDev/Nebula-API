@@ -6,6 +6,12 @@ const { PrismaClient } = require('@prisma/client')
 const helper = require('../helper')
 const prisma = new PrismaClient()
 
+function getTimeForLog(){
+  var currentdate = new Date();
+  var _time = currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
+  return _time;
+}
+
 router.get('/getUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
     const userId = req.user.id
     const user = await prisma.users.findUnique({
@@ -31,7 +37,9 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
   })
 
   router.post('/searchUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
-    const searchTerm = req.body.searchTerm
+    const searchTerm = req.body.searchTerm;
+    let action = "Searched for '" + searchTerm + "'";
+    helper.saveLog(action, req.user.Handle)
     const users = await prisma.users.findMany({
       where: {
         OR: [
@@ -58,7 +66,6 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     const amount = req.body.amount
     const userAmount = await prisma.users.count() - amount
     randomNumber = Math.floor(Math.random() * (userAmount - 1 + 2))
-    
 
     users = await prisma.users.findMany({
       skip: randomNumber,

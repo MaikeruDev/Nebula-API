@@ -5,11 +5,13 @@ const passport = require('passport')
 
 const { PrismaClient } = require('@prisma/client') 
 const helper = require('../helper')
+const { time } = require('console')
 const prisma = new PrismaClient()
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
-  let amountOfPosts = 15 
-  console.log("Posts | Returned the newest " + amountOfPosts + " posts for user ID: " + req.user.ID)
+  let amountOfPosts = 15;
+  let action = "Returned the newest " + amountOfPosts + " posts";
+  helper.saveLog(action, req.user.Handle);
     post_skip = req.body.skip
     const followedUsers = await prisma.relationships.findMany({
       where: { 
@@ -56,32 +58,33 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
   })
 
 router.post('/getOwnPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  let amountOfPosts = 15 
-  console.log("Posts | Returned " + amountOfPosts + " own posts for user ID: " + req.user.ID)
-    post_skip = req.body.skip
+  let amountOfPosts = 15;
+  post_skip = req.body.skip;
+  let action = "Returned " + amountOfPosts + " own posts";
+  helper.saveLog(action, req.user.Handle)
 
-    const posts = await prisma.posts.findMany({
-      where: {
-        AuthorID: {
-          in: req.user.ID
+  const posts = await prisma.posts.findMany({
+    where: {
+      AuthorID: {
+        in: req.user.ID
+      }
+    },
+    include: {
+      comments: {
+        include: {
+          users: true
         }
       },
-      include: {
-        comments: {
-          include: {
-            users: true
-          }
-        },
-        likes: true,
-        users: true
-      },
-      take: amountOfPosts,
-      skip: post_skip, 
-      orderBy: {
-        DateCreated: 'desc'
-      }
-    }); 
-    helper.resSend(res, posts)
-  })
+      likes: true,
+      users: true
+    },
+    take: amountOfPosts,
+    skip: post_skip, 
+    orderBy: {
+      DateCreated: 'desc'
+    }
+  }); 
+  helper.resSend(res, posts)
+})
 
 module.exports = router
