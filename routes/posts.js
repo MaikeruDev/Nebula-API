@@ -7,8 +7,9 @@ const { PrismaClient } = require('@prisma/client')
 const helper = require('../helper')
 const prisma = new PrismaClient()
 
-router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  console.log("Posts | Returned newest posts")
+router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
+  let amountOfPosts = 15 
+  console.log("Posts | Returned the newest " + amountOfPosts + " posts for user ID: " + req.user.ID)
     post_skip = req.body.skip
     const followedUsers = await prisma.relationships.findMany({
       where: { 
@@ -45,18 +46,18 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
         likes: true,
         users: true
       },
-      take: 15,
+      take: amountOfPosts,
       skip: post_skip, 
       orderBy: {
         DateCreated: 'desc'
       }
     }); 
-    //res.send(posts)
     helper.resSend(res, posts)
   })
 
 router.post('/getOwnPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
-  console.log("Posts | Returned own posts")
+  let amountOfPosts = 15 
+  console.log("Posts | Returned " + amountOfPosts + " own posts for user ID: " + req.user.ID)
     post_skip = req.body.skip
 
     const posts = await prisma.posts.findMany({
@@ -74,13 +75,12 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
         likes: true,
         users: true
       },
-      take: 15,
+      take: amountOfPosts,
       skip: post_skip, 
       orderBy: {
         DateCreated: 'desc'
       }
     }); 
-    //res.send(posts)
     helper.resSend(res, posts)
   })
 

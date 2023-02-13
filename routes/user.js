@@ -98,8 +98,6 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
       });
     }
 
-    console.log(users)
-
     helper.resSend(res, users)
   })  
 

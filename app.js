@@ -30,5 +30,5 @@ app.get("/", async (req, res) => {
 })
 
 app.listen(3100, function() {
-    console.log("Starting | Listening to port 3100")
+    console.log("Starting | Listening to port 3100\n\n")
 }) 
