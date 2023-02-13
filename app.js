@@ -27,6 +27,9 @@ app.use('/user', user)
 const getPosts = require('./routes/posts')
 app.use('/posts', getPosts)
 
+const getStats = require('./routes/stats')
+app.use('/stats', getStats)
+
 app.get("/", async (req, res) => {
     console.log("Status | Sent Status 200 -> OK")
     res.sendStatus(200)
