@@ -11,8 +11,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 
 router.post('/register', async (req, res) => { 
-/*     let action = ""
-    helper.saveLog() */
+    let action = "Is trying to register"
+    helper.saveLog(action, req.body.email)
     if (!req.body.email || !req.body.username || !req.body.handle || !req.body.password) {
         helper.resSend(res, null, helper.resStatuses.error, 'Empty fields!')
         return
@@ -53,12 +53,6 @@ router.post('/register', async (req, res) => {
         where: { Email: req.body.email },
         select: { ID: true }
     }) 
-    // helper.sendMail(
-    //   req.body.email,
-    //   'Email verification',
-    //   'Open this link to enable your account: https://ideaoverflow.xyz/verify/' +
-    //   code
-    // )
     const usertoken = helper.createJWT(
         new_user.ID,
         req.body.email,
@@ -69,6 +63,8 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
+    let action = "Is trying to login"
+    helper.saveLog(action, req.body.email)
     if (!req.body.email || !req.body.password) {
       return res.json({ message: 'Empty fields!' })
     } else {

@@ -34,7 +34,7 @@ module.exports = {
       formattedTime = formattedTime.getHours() + ":" + formattedTime.getMinutes() + ":" + formattedTime.getSeconds();
       console.log(formattedToday + " - " + formattedTime + " | " + handle + " | " + actionToLog);
 
-      fs.appendFile(logPath + formattedToday + ".nbl", "\n"+(formattedToday + " - " + formattedTime + " | " + handle + "\t\t | " + actionToLog), function (err) {
+      fs.appendFile(logPath + formattedToday + ".nbl", "\n"+(formattedToday + " - " + formattedTime + " | " + handle + " | " + actionToLog), function (err) {
         if (err) throw err;
       });
     },
