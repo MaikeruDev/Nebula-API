@@ -89,4 +89,13 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
   helper.resSend(res, posts)
 })
 
+router.post('/getPostsAmount', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+  let action = "Requests the amount of all post";
+  helper.saveLog(action, req.user.Handle)
+
+  const posts = await prisma.posts.count()
+
+  helper.resSend(res, posts)
+})
+
 module.exports = router
