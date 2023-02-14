@@ -2,16 +2,18 @@ const express = require('express')
 const app = express() 
 const cors = require('cors')
 const passport = require('passport') 
-const helper = require('./helper')
+const helper = require('./helper') 
 
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient() 
 
-const casual = require('casual');
+var bodyParser = require('body-parser')
+
+const casual = require('casual'); 
 
 app.use(cors())
-app.use(express.json())
-app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: '50mb', extended: true}))
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 
 const authentication = require('./middleware/authentication')
 passport.use('authentication', authentication)
@@ -34,5 +36,5 @@ app.get("/", async (req, res) => {
 })
 
 app.listen(3100, function() {
-    console.log("Starting | Listening to port 3100\n\n")
+    console.log("Starting | Listening to port 3100")
 }) 
