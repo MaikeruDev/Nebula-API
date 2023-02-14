@@ -95,17 +95,22 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
 
   let action = "Is trying to create a post";
   helper.saveLog(action, req.user.Handle)
+ 
+  let Image = " "
 
-  var base64Data = req.body.Image.replace(/^data:image\/png;base64,/, "");
+  if(req.body.Image){
+    var base64Data = req.body.Image.replace(/^data:image\/png;base64,/, "");
 
-  file_name = uuidv4()
+    file_name = uuidv4()
 
-  require("fs").writeFile("./image_uploads/" + file_name + ".png", base64Data, 'base64', function(err) {
-    console.log(err);
-  }); 
-
+    require("fs").writeFile("./post_images/" + file_name + ".png", base64Data, 'base64', function(err) {
+       
+    }); 
+    
+    Image = "http://michael.prietl.com:3100/" + file_name + ".png";
+  }
+ 
   let Text = req.body.Text;
-  let Image ="http://michael.prietl.com/nebula/" + file_name + ".png";
   let AuthorID = req.user.ID;
 
   await prisma.posts.create({

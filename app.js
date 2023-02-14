@@ -14,6 +14,7 @@ const casual = require('casual');
 app.use(cors())
 app.use(bodyParser.json({limit: '50mb', extended: true}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
+app.use(express.static('post_images'))
 
 const authentication = require('./middleware/authentication')
 passport.use('authentication', authentication)
