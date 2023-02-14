@@ -2,11 +2,13 @@ const express = require('express')
 var router = express.Router()
 
 const passport = require('passport')
-
+  
 const { PrismaClient } = require('@prisma/client') 
 const helper = require('../helper')
-const { time } = require('console')
-const prisma = new PrismaClient()
+
+const prisma = new PrismaClient()   
+
+const { v4: uuidv4 } = require('uuid');
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
   let amountOfPosts = 15;
@@ -87,14 +89,23 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
     }
   }); 
   helper.resSend(res, posts)
-})
+}) 
 
 router.post('/newPost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+
   let action = "Is trying to create a post";
   helper.saveLog(action, req.user.Handle)
 
+  var base64Data = req.body.Image.replace(/^data:image\/png;base64,/, "");
+
+  file_name = uuidv4()
+
+  require("fs").writeFile("./image_uploads/" + file_name + ".png", base64Data, 'base64', function(err) {
+    console.log(err);
+  }); 
+
   let Text = req.body.Text;
-  let Image = req.body.Image;
+  let Image ="http://michael.prietl.com/nebula/" + file_name + ".png";
   let AuthorID = req.user.ID;
 
   await prisma.posts.create({
@@ -105,7 +116,7 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
     }
   })
 
-  helper.resSend(res)
+  helper.resSend(res)   
 })
 
 module.exports = router
