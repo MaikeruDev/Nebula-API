@@ -11,6 +11,15 @@ var bodyParser = require('body-parser')
 
 const casual = require('casual'); 
 
+/* var https = require('https')
+var fs = require('fs') */
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods","GET, POST, OPTIONS, PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 app.use(cors())
 app.use(bodyParser.json({limit: '50mb', extended: true}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
@@ -39,3 +48,24 @@ app.get("/", async (req, res) => {
 app.listen(3100, function() {
     console.log("Starting | Listening to port 3100")
 }) 
+
+/* var httpsOptions = {
+
+    key: fs.readFileSync("./security/private.key"),
+  
+    cert: fs.readFileSync("./security/certificate.crt"),
+  
+    ca: [
+  
+            fs.readFileSync('./security/ca_bundle.crt'),
+  
+            fs.readFileSync('./security/ca_bundle.crt')
+  
+         ]
+};
+
+const port = 3100
+
+const server = https.createServer(httpsOptions, app).listen(port, () => {
+    console.log('server running at ' + port)
+}) */
