@@ -104,6 +104,32 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
 
   router.post('/updateProfileSettings', passport.authenticate('authentication', { session: false }), async (req, res) => {
     const settings = req.body;
+    var Image_PFP = " ";
+    var Image_Banner = " ";
+    if(req.body.ProfilePicture.startsWith("data:")){
+      var base64Data = settings.ProfilePicture.replace(/^data:image\/png;base64,/, "");
+
+      require("fs").writeFile("./pfp_images/pfp_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
+         
+      }); 
+      
+      Image_PFP = "http://michael.prietl.com:3100/pfp_" + req.user.ID + ".png";
+    }
+    else{
+      Image_PFP = settings.ProfilePicture;
+    }
+    if(req.body.Banner.startsWith("data:")){
+      var base64Data = settings.Banner.replace(/^data:image\/png;base64,/, "");
+
+      require("fs").writeFile("./banner_images/banner_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
+         
+      }); 
+      
+      Image_Banner = "http://michael.prietl.com:3100/banner_" + req.user.ID + ".png";
+    }
+    else{
+      Image_Banner = settings.Banner;
+    }
 
     respone = await prisma.users.update({
       where:{
@@ -113,12 +139,12 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
         Bio: settings.Bio,
         Handle: settings.Handle,
         Username: settings.Username,
-        Banner: settings.Banner,
-        ProfilePicture: settings.ProfilePicture,
+        Banner: Image_Banner,
+        ProfilePicture: Image_PFP,
       }
     });
 
-    helper.resSend(res, users)
+    helper.resSend(res)
   })  
 
   function sortByUsernameAndHandle(array, searchTerm) {
