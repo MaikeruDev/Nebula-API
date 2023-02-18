@@ -33,14 +33,15 @@ model likes {
 }
 
 model posts {
-  ID          Int        @id @default(autoincrement())
-  Text        String     @db.VarChar(255)
-  Image       String     @db.MediumText
-  AuthorID    Int
-  DateCreated DateTime   @default(now()) @db.DateTime(0)
-  comments    comments[]
-  likes       likes[]
-  users       users      @relation(fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "posts_ibfk_1")
+  ID            Int             @id @default(autoincrement())
+  Text          String          @db.VarChar(255)
+  Image         String          @db.MediumText
+  AuthorID      Int
+  DateCreated   DateTime        @default(now()) @db.DateTime(0)
+  comments      comments[]
+  likes         likes[]
+  notifications notifications[]
+  users         users           @relation(fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "posts_ibfk_1")
 
   @@index([AuthorID], map: "AuthorID")
 }
@@ -69,7 +70,25 @@ model users {
   Bio                                           String?         @db.VarChar(100)
   comments                                      comments[]
   likes                                         likes[]
+  notifications_notifications_SenderIDTousers   notifications[] @relation("notifications_SenderIDTousers")
+  notifications_notifications_RecieverIDTousers notifications[] @relation("notifications_RecieverIDTousers")
   posts                                         posts[]
   relationships_relationships_FollowedIDTousers relationships[] @relation("relationships_FollowedIDTousers")
   relationships_relationships_FollowerIDTousers relationships[] @relation("relationships_FollowerIDTousers")
+}
+
+model notifications {
+  ID                                    Int      @id @default(autoincrement())
+  Type                                  String   @db.VarChar(255)
+  SenderID                              Int
+  RecieverID                            Int
+  PostID                                Int?
+  DateCreated                           DateTime @default(now()) @db.DateTime(0)
+  users_notifications_SenderIDTousers   users    @relation("notifications_SenderIDTousers", fields: [SenderID], references: [ID], onUpdate: Restrict, map: "notifications_ibfk_1")
+  users_notifications_RecieverIDTousers users    @relation("notifications_RecieverIDTousers", fields: [RecieverID], references: [ID], onUpdate: Restrict, map: "notifications_ibfk_2")
+  posts                                 posts?   @relation(fields: [PostID], references: [ID], onDelete: Restrict, onUpdate: Restrict, map: "notifications_ibfk_3")
+
+  @@index([PostID], map: "PostID")
+  @@index([RecieverID], map: "RecieverID")
+  @@index([SenderID], map: "SenderID")
 }
