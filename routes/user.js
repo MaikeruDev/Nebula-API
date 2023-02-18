@@ -103,6 +103,8 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
   })  
 
   router.post('/updateProfileSettings', passport.authenticate('authentication', { session: false }), async (req, res) => {
+    let action = "Tried to update profile settings";
+    helper.saveLog(action, req.user.Handle)
     const settings = req.body;
     var Image_PFP = " ";
     var Image_Banner = " ";
