@@ -5,3 +5,5 @@ node_modules
 .logs/
 security/
 post_images/
+pfp_images/
+banner_images/
