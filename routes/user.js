@@ -111,11 +111,11 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     if(req.body.ProfilePicture.startsWith("data:")){
       var base64Data = settings.ProfilePicture.replace(/^data:image\/png;base64,/, "");
 
-      require("fs").writeFile("./pfp_images/pfp_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
+      require("fs").writeFile("./p_images/p_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
          
       }); 
       
-      Image_PFP = "http://michael.prietl.com:3100/pfp_" + req.user.ID + ".png";
+      Image_PFP = "http://michael.prietl.com:3100/p_" + req.user.ID + ".png";
     }
     else{
       Image_PFP = settings.ProfilePicture;
@@ -123,11 +123,11 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     if(req.body.Banner.startsWith("data:")){
       var base64Data = settings.Banner.replace(/^data:image\/png;base64,/, "");
 
-      require("fs").writeFile("./banner_images/banner_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
+      require("fs").writeFile("./b_images/b_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
          
       }); 
       
-      Image_Banner = "http://michael.prietl.com:3100/banner_" + req.user.ID + ".png";
+      Image_Banner = "http://michael.prietl.com:3100/b_" + req.user.ID + ".png";
     }
     else{
       Image_Banner = settings.Banner;
