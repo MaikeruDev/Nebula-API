@@ -81,14 +81,14 @@ router.post('/login', async (req, res) => {
             user.Email,
             user.Username,
             user.Handle
-          ) 
+          )
 
           const answer = { token: usertoken }
           helper.resSend(res, answer)
       }
       else{
         helper.resSend(res, null, helper.resStatuses.error, 'Wrong password!')
-      } 
+      }
     }
   })
 
