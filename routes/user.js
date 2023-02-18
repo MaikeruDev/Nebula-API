@@ -6,12 +6,6 @@ const { PrismaClient } = require('@prisma/client')
 const helper = require('../helper')
 const prisma = new PrismaClient()
 
-function getTimeForLog(){
-  var currentdate = new Date();
-  var _time = currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
-  return _time;
-}
-
 router.get('/getUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
     const userId = req.user.id
     const user = await prisma.users.findUnique({
@@ -104,6 +98,25 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
         }
       });
     }
+
+    helper.resSend(res, users)
+  })  
+
+  router.post('/updateProfileSettings', passport.authenticate('authentication', { session: false }), async (req, res) => {
+    const settings = req.body;
+
+    respone = await prisma.users.update({
+      where:{
+        ID: req.user.ID,
+      },
+      data:{
+        Bio: settings.Bio,
+        Handle: settings.Handle,
+        Username: settings.Username,
+        Banner: settings.Banner,
+        ProfilePicture: settings.ProfilePicture,
+      }
+    });
 
     helper.resSend(res, users)
   })  
