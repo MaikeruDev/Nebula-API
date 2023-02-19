@@ -50,7 +50,12 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
           }
         },
         likes: true,
-        users: true
+        users: {
+          include: {
+            relationships_relationships_FollowedIDTousers: true,
+            relationships_relationships_FollowerIDTousers: true
+          }
+        }
       },
       take: amountOfPosts,
       skip: post_skip, 
@@ -71,6 +76,36 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
     where: {
       AuthorID: {
         in: req.user.ID
+      }
+    },
+    include: {
+      comments: {
+        include: {
+          users: true
+        }
+      },
+      likes: true,
+      users: true
+    },
+    take: amountOfPosts,
+    skip: post_skip, 
+    orderBy: {
+      DateCreated: 'desc'
+    }
+  }); 
+  helper.resSend(res, posts)
+}) 
+
+router.post('/getUsersPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+  let amountOfPosts = 15;
+  post_skip = req.body.skip;
+  let action = "Returned " + amountOfPosts + " own posts";
+  helper.saveLog(action, req.user.Handle)
+
+  const posts = await prisma.posts.findMany({
+    where: {
+      AuthorID: {
+        in: req.body.userID
       }
     },
     include: {
