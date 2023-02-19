@@ -115,7 +115,7 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
          
       }); 
       
-      Image_PFP = "http://michael.prietl.com:3100/p_" + req.user.ID + ".png";
+      Image_PFP = "https://michael.prietl.com:3100/p_" + req.user.ID + ".png";
     }
     else{
       Image_PFP = settings.ProfilePicture;
@@ -127,7 +127,7 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
          
       }); 
       
-      Image_Banner = "http://michael.prietl.com:3100/b_" + req.user.ID + ".png";
+      Image_Banner = "https://michael.prietl.com:3100/b_" + req.user.ID + ".png";
     }
     else{
       Image_Banner = settings.Banner;
