@@ -107,7 +107,7 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
        
     }); 
     
-    Image = "http://michael.prietl.com:3100/" + file_name + ".png";
+    Image = "https://michael.prietl.com:3100/" + file_name + ".png";
   }
  
   let Text = req.body.Text;
