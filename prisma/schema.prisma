@@ -24,7 +24,7 @@ model likes {
   ID          Int      @id @default(autoincrement())
   UserID      Int
   PostID      Int
-  DateCreated DateTime @db.Date
+  DateCreated DateTime @default(now()) @db.DateTime(0)
   posts       posts    @relation(fields: [PostID], references: [ID], onUpdate: Restrict, map: "likes_ibfk_1")
   users       users    @relation(fields: [UserID], references: [ID], onUpdate: Restrict, map: "likes_ibfk_2")
 

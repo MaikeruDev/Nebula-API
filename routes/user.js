@@ -49,6 +49,10 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
           }
         ]
       },
+      include: {
+        relationships_relationships_FollowedIDTousers: true,
+        relationships_relationships_FollowerIDTousers: true
+      }
     });
   
     const sortedUsers = sortByUsernameAndHandle(users, searchTerm)
@@ -60,7 +64,7 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     const amount = req.body.amount
     const userAmount = await prisma.users.count() - amount
     randomNumber = Math.floor(Math.random() * (userAmount - 1 + 2))
-
+ 
     users = await prisma.users.findMany({
       skip: randomNumber,
       take: amount,
@@ -70,14 +74,11 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
         }
       },
       include:{
-        relationships_relationships_FollowedIDTousers:{
-          where: {
-            FollowerID: req.user.ID
-          }
-        } 
-      }
+        relationships_relationships_FollowedIDTousers: true,
+        relationships_relationships_FollowerIDTousers: true 
+      } 
     });
-    
+
     while(users.length < 3){
       users = []
       randomNumber = Math.floor(Math.random() * (userAmount - 1 + 2))
@@ -90,31 +91,46 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
           }
         },
         include:{
-          relationships_relationships_FollowedIDTousers: {
-            where: {
-              FollowerID: req.user.ID
-            }
-          }  
-        }
+          relationships_relationships_FollowedIDTousers: true,
+          relationships_relationships_FollowerIDTousers: true 
+        } 
       });
     }
+
+    users.forEach((user, index) => { 
+      const found = user.relationships_relationships_FollowerIDTousers.find(element => req.user.ID);
+      users[index].Following = !!found 
+    }); 
 
     helper.resSend(res, users)
   })  
 
   router.post('/updateProfileSettings', passport.authenticate('authentication', { session: false }), async (req, res) => {
+
     let action = "Tried to update profile settings";
     helper.saveLog(action, req.user.Handle)
+
     const settings = req.body;
+ 
+    if(req.user.Handle != settings.Handle){
+      handleCheck = await prisma.users.findFirst({
+        where: {
+          Handle: settings.Handle
+        }
+      })
+      
+      if(handleCheck){ 
+        helper.resSend(res, null, helper.resStatuses.error, 'User with this handle already exists.') 
+        return
+      }
+    }
+
     var Image_PFP = " ";
     var Image_Banner = " ";
+
     if(req.body.ProfilePicture.startsWith("data:")){
       var base64Data = settings.ProfilePicture.replace(/^data:image\/png;base64,/, "");
-
-      require("fs").writeFile("./p_images/p_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
-         
-      }); 
-      
+      require("fs").writeFile("./p_images/p_" + req.user.ID + ".png", base64Data, 'base64', function(err) {}); 
       Image_PFP = "https://michael.prietl.com:3100/p_" + req.user.ID + ".png";
     }
     else{
@@ -122,11 +138,7 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     }
     if(req.body.Banner.startsWith("data:")){
       var base64Data = settings.Banner.replace(/^data:image\/png;base64,/, "");
-
-      require("fs").writeFile("./b_images/b_" + req.user.ID + ".png", base64Data, 'base64', function(err) {
-         
-      }); 
-      
+      require("fs").writeFile("./b_images/b_" + req.user.ID + ".png", base64Data, 'base64', function(err) {});     
       Image_Banner = "https://michael.prietl.com:3100/b_" + req.user.ID + ".png";
     }
     else{

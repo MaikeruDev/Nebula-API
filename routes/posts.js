@@ -12,57 +12,67 @@ const { v4: uuidv4 } = require('uuid');
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
   let amountOfPosts = 15;
+
   post_skip = req.body.skip
+
   let action = "";
   action = "Returned the newest " + amountOfPosts + " posts";
+
   if(post_skip > 0) action = "Returned " + amountOfPosts + " posts";
   helper.saveLog(action, req.user.Handle);
-    const followedUsers = await prisma.relationships.findMany({
-      where: { 
-        FollowerID: req.user.ID
-      },
-      select: {
-        FollowedID: true
-      }
-    });
 
-    const followedUserIds = followedUsers.map(relationship => relationship.FollowedID);
+  const followedUsers = await prisma.relationships.findMany({
+    where: { 
+      FollowerID: req.user.ID
+    },
+    select: {
+      FollowedID: true
+    }
+  });
 
-    const posts = await prisma.posts.findMany({
-      where: {
-        OR: [
-          {
-            AuthorID: {
-              in: followedUserIds
-            }
-          },
-          {
-            AuthorID: {
-              in: req.user.ID
-            }
-          }
-        ] 
-      },
-      include: {
-        comments: {
-          include: {
-            users: true
+  const followedUserIds = followedUsers.map(relationship => relationship.FollowedID);
+
+  const posts = await prisma.posts.findMany({
+    where: {
+      OR: [
+        {
+          AuthorID: {
+            in: followedUserIds
           }
         },
-        likes: true,
-        users: {
-          include: {
-            relationships_relationships_FollowedIDTousers: true,
-            relationships_relationships_FollowerIDTousers: true
+        {
+          AuthorID: {
+            in: req.user.ID
           }
         }
+      ] 
+    },
+    include: {
+      comments: {
+        include: {
+          users: true
+        }
       },
-      take: amountOfPosts,
-      skip: post_skip, 
-      orderBy: {
-        DateCreated: 'desc'
+      likes: true,
+      users: {
+        include: {
+          relationships_relationships_FollowedIDTousers: true,
+          relationships_relationships_FollowerIDTousers: true
+        }
       }
+    },
+    take: amountOfPosts,
+    skip: post_skip, 
+    orderBy: {
+      DateCreated: 'desc'
+    }
     }); 
+
+    posts.forEach((post, index) => { 
+      const found = post.likes.find(el => el.UserID === req.user.ID); 
+      posts[index].liked = !!found 
+    });
+
     helper.resSend(res, posts)
   })
 
@@ -155,6 +165,36 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
         AuthorID: AuthorID,
     }
   })
+
+  helper.resSend(res)   
+})
+
+router.post('/likePost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+ 
+  let action = "Is trying to like post with ID: " + req.body.ID;
+  helper.saveLog(action, req.user.Handle)
+
+  like_post = await prisma.likes.create({
+    data: {
+      PostID: req.body.ID,
+      UserID: req.user.ID
+    }
+  }) 
+
+  helper.resSend(res)   
+})
+
+router.post('/unlikePost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+
+  let action = "Is trying to dislike post with ID: " + req.body.ID;
+  helper.saveLog(action, req.user.Handle)
+ 
+  unlike_post = await prisma.likes.deleteMany({
+    where: { 
+      PostID: req.body.ID,
+      UserID: req.user.ID
+    }
+  }) 
 
   helper.resSend(res)   
 })
