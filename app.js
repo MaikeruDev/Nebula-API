@@ -11,8 +11,8 @@ var bodyParser = require('body-parser')
 
 const casual = require('casual'); 
 
-/* var https = require('https')
-var fs = require('fs') */
+var https = require('https')
+var fs = require('fs')
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -45,21 +45,21 @@ app.get("/", async (req, res) => {
     res.sendStatus(200)
 })
 
-app.listen(3100, function() {
+/* app.listen(3100, function() {
     console.log("Starting | Listening to port 3100")
-}) 
+})  */
 
-/* var httpsOptions = {
+var httpsOptions = {
 
-    key: fs.readFileSync("./security/private.key"),
+    key: fs.readFileSync(".security/private.key"),
   
-    cert: fs.readFileSync("./security/certificate.crt"),
+    cert: fs.readFileSync(".security/certificate.crt"),
   
     ca: [
   
-            fs.readFileSync('./security/ca_bundle.crt'),
+            fs.readFileSync('.security/ca_bundle.crt'),
   
-            fs.readFileSync('./security/ca_bundle.crt')
+            fs.readFileSync('.security/ca_bundle.crt')
   
          ]
 };
@@ -68,4 +68,4 @@ const port = 3100
 
 const server = https.createServer(httpsOptions, app).listen(port, () => {
     console.log('server running at ' + port)
-}) */
+})
