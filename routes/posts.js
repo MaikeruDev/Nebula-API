@@ -99,7 +99,7 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
 router.post('/getUsersPosts', passport.authenticate('authentication', { session: false }), async (req, res) => {  
   let amountOfPosts = 15;
   post_skip = req.body.skip;
-  let action = "Returned " + amountOfPosts + " own posts";
+  let action = "Returned " + amountOfPosts + " posts of user with ID " + req.body.userID;
   helper.saveLog(action, req.user.Handle)
 
   const posts = await prisma.posts.findMany({
