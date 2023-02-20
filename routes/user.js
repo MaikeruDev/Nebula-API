@@ -6,7 +6,7 @@ const { PrismaClient } = require('@prisma/client')
 const helper = require('../helper')
 const prisma = new PrismaClient()
 
-router.get('/getUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
+  router.get('/getUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
     const userId = req.user.id
     const user = await prisma.users.findUnique({
       where: { ID: userId }
@@ -54,6 +54,11 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
         relationships_relationships_FollowerIDTousers: true
       }
     });
+
+    users.forEach((user, index) => {    
+      const found = user.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID);
+      users[index].Following = !!found 
+    }); 
   
     const sortedUsers = sortByUsernameAndHandle(users, searchTerm)
   
@@ -98,12 +103,12 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
     }
 
     users.forEach((user, index) => { 
-      const found = user.relationships_relationships_FollowerIDTousers.find(element => req.user.ID);
+      const found = user.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID);
       users[index].Following = !!found 
     }); 
 
     helper.resSend(res, users)
-  })  
+  })    
 
   router.post('/updateProfileSettings', passport.authenticate('authentication', { session: false }), async (req, res) => {
 
@@ -160,6 +165,45 @@ router.get('/getUser', passport.authenticate('authentication', { session: false 
 
     helper.resSend(res)
   })  
+
+  router.post('/follow', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+ 
+    let action = "Is trying to follow user with ID: " + req.body.ID;
+    helper.saveLog(action, req.user.Handle)
+  
+    already_exists = await prisma.relationships.findFirst({
+      where: {
+        FollowedID: req.body.ID,
+        FollowerID: req.user.ID
+      }
+    })
+  
+    if(already_exists) return
+  
+    follow = await prisma.relationships.create({
+      data: {
+        FollowedID: req.body.ID,
+        FollowerID: req.user.ID
+      }
+    }) 
+  
+    helper.resSend(res)   
+  })
+  
+  router.post('/unfollow', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+  
+    let action = "Is trying to unfollow user with ID: " + req.body.ID;
+    helper.saveLog(action, req.user.Handle)
+   
+    unfollow = await prisma.relationships.deleteMany({
+      where: { 
+        FollowedID: req.body.ID,
+        FollowerID: req.user.ID
+      }
+    }) 
+  
+    helper.resSend(res)   
+  })
 
   function sortByUsernameAndHandle(array, searchTerm) {
     return array.sort((a, b) => {

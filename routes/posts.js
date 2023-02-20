@@ -69,9 +69,12 @@ router.post('/getPosts', passport.authenticate('authentication', { session: fals
     }); 
 
     posts.forEach((post, index) => { 
-      const found = post.likes.find(el => el.UserID === req.user.ID); 
-      posts[index].liked = !!found 
-    });
+      const like_found = post.likes.find(el => el.UserID === req.user.ID); 
+      posts[index].liked = !!like_found 
+  
+      const following_found = post.users.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); 
+      posts[index].users.Following = !!following_found  
+    }); 
 
     helper.resSend(res, posts)
   })

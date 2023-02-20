@@ -50,7 +50,7 @@ model relationships {
   ID                                    Int      @id @default(autoincrement())
   FollowerID                            Int
   FollowedID                            Int
-  DateCreated                           DateTime @db.Date
+  DateCreated                           DateTime @default(now()) @db.DateTime(0)
   users_relationships_FollowedIDTousers users    @relation("relationships_FollowedIDTousers", fields: [FollowedID], references: [ID], onUpdate: Restrict, map: "relationships_ibfk_1")
   users_relationships_FollowerIDTousers users    @relation("relationships_FollowerIDTousers", fields: [FollowerID], references: [ID], onUpdate: Restrict, map: "relationships_ibfk_2")
 
