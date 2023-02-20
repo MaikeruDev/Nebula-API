@@ -9,6 +9,7 @@ const helper = require('../helper')
 const prisma = new PrismaClient()   
 
 const { v4: uuidv4 } = require('uuid');
+const { notifications } = require('../helper')
 
 router.post('/getPosts', passport.authenticate('authentication', { session: false }), async (req, res) => { 
   let amountOfPosts = 15;
@@ -187,7 +188,9 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
 router.post('/likePost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
  
   let action = "Is trying to like post with ID: " + req.body.ID;
-  helper.saveLog(action, req.user.Handle)
+  helper.saveLog(action, req.user.Handle) 
+
+  helper.sendNotification(notifications.like, req.user.ID, req.body.User.ID, req.body.ID)
 
   already_exists = await prisma.likes.findFirst({
     where: {
