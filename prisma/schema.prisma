@@ -12,7 +12,7 @@ model comments {
   Text        String   @db.VarChar(255)
   UserID      Int
   PostID      Int
-  DateCreated DateTime @db.Date
+  DateCreated DateTime @default(now()) @db.DateTime(0)
   posts       posts    @relation(fields: [PostID], references: [ID], onUpdate: Restrict, map: "comments_ibfk_1")
   users       users    @relation(fields: [UserID], references: [ID], onUpdate: Restrict, map: "comments_ibfk_2")
 
@@ -83,6 +83,7 @@ model notifications {
   SenderID                              Int
   RecieverID                            Int
   PostID                                Int?
+  seen                                  Boolean  @default(false)
   DateCreated                           DateTime @default(now()) @db.DateTime(0)
   users_notifications_SenderIDTousers   users    @relation("notifications_SenderIDTousers", fields: [SenderID], references: [ID], onUpdate: Restrict, map: "notifications_ibfk_1")
   users_notifications_RecieverIDTousers users    @relation("notifications_RecieverIDTousers", fields: [RecieverID], references: [ID], onUpdate: Restrict, map: "notifications_ibfk_2")

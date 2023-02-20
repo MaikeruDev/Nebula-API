@@ -4,6 +4,7 @@ const passport = require('passport')
 
 const { PrismaClient } = require('@prisma/client')
 const helper = require('../helper')
+const { notifications } = require('../helper')
 const prisma = new PrismaClient()
 
   router.get('/getUser', passport.authenticate('authentication', { session: false }), async (req, res) => {
@@ -170,7 +171,9 @@ const prisma = new PrismaClient()
  
     let action = "Is trying to follow user with ID: " + req.body.ID;
     helper.saveLog(action, req.user.Handle)
-  
+    
+    helper.sendNotification(notifications.follower, req.user.ID, req.body.ID)
+    
     already_exists = await prisma.relationships.findFirst({
       where: {
         FollowedID: req.body.ID,
@@ -179,11 +182,14 @@ const prisma = new PrismaClient()
     })
   
     if(already_exists) return
+
+    let Date = await helper.getTimeStamp()
   
     follow = await prisma.relationships.create({
       data: {
         FollowedID: req.body.ID,
-        FollowerID: req.user.ID
+        FollowerID: req.user.ID,
+        DateCreated: Date
       }
     }) 
   
@@ -203,6 +209,63 @@ const prisma = new PrismaClient()
     }) 
   
     helper.resSend(res)   
+  })
+
+  router.post('/getNotifications', passport.authenticate('authentication', { session: false }), async (req, res) => {
+
+    let action = "";
+    action = "Returned notifications with skip: " + req.body.skip; 
+    helper.saveLog(action, req.user.Handle); 
+
+    const notifications = await prisma.notifications.findMany({
+      where: {
+        RecieverID: req.user.ID
+      },
+      include: {
+        users_notifications_SenderIDTousers: {
+          include: {
+            relationships_relationships_FollowedIDTousers: true,
+            relationships_relationships_FollowerIDTousers: true
+          }
+        },
+      }, 
+      orderBy: {
+        DateCreated: 'desc'
+      },
+      skip: req.body.skip,
+      take: 15
+    })
+
+    notifications.forEach(async (notification, index) => {
+      notification.message = helper.notifications[notification.Type].message
+
+      const following_found = notification.users_notifications_SenderIDTousers.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); 
+      notifications[index].users_notifications_SenderIDTousers.Following = !!following_found 
+      
+      read = await prisma.notifications.update({
+        where: {
+          ID: notification.ID
+        },
+        data: {
+          seen: true
+        }
+      })
+    });
+
+    helper.resSend(res, notifications)
+  })
+
+  router.get('/hasNewNotifications', passport.authenticate('authentication', { session: false }), async (req, res) => {
+    const notifications = await prisma.notifications.findFirst({
+      where: {
+        RecieverID: req.user.ID
+      },
+      orderBy: {
+        DateCreated: 'desc'
+      }
+    })
+
+    helper.resSend(res, notifications)
   })
 
   function sortByUsernameAndHandle(array, searchTerm) {

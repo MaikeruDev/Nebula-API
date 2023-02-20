@@ -37,6 +37,8 @@ router.post('/register', async (req, res) => {
       helper.resSend(res, null, helper.resStatuses.error, 'This handle is already used!')
       return
     }
+
+    let Date = await helper.getTimeStamp()
   
     await prisma.users.create({
         data: {
@@ -46,7 +48,7 @@ router.post('/register', async (req, res) => {
             Password: req.body.password,
             ProfilePicture: "https://ih1.redbubble.net/image.4655171968.9673/st,small,507x507-pad,600x600,f8f8f8.jpg" + req.body.handle,
             Banner: "http://michael.prietl.com/nebula-logo.png",
-            SignUpDate: new Date()
+            SignUpDate: Date
         }
     })
     const new_user = await prisma.users.findFirst({
