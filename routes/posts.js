@@ -102,7 +102,13 @@ router.post('/getOwnPosts', passport.authenticate('authentication', { session: f
     orderBy: {
       DateCreated: 'desc'
     }
-  }); 
+  });
+  
+  posts.forEach((post, index) => { 
+    const found = post.likes.find(el => el.UserID === req.user.ID); 
+    posts[index].liked = !!found 
+  });
+
   helper.resSend(res, posts)
 }) 
 
@@ -133,6 +139,12 @@ router.post('/getUsersPosts', passport.authenticate('authentication', { session:
       DateCreated: 'desc'
     }
   }); 
+
+  posts.forEach((post, index) => { 
+    const found = post.likes.find(el => el.UserID === req.user.ID); 
+    posts[index].liked = !!found 
+  });
+
   helper.resSend(res, posts)
 }) 
 
@@ -173,6 +185,15 @@ router.post('/likePost', passport.authenticate('authentication', { session: fals
  
   let action = "Is trying to like post with ID: " + req.body.ID;
   helper.saveLog(action, req.user.Handle)
+
+  already_exists = await prisma.likes.findFirst({
+    where: {
+      PostID: req.body.ID,
+      UserID: req.user.ID
+    }
+  })
+
+  if(already_exists) return
 
   like_post = await prisma.likes.create({
     data: {
