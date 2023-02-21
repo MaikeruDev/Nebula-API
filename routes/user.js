@@ -268,6 +268,72 @@ const prisma = new PrismaClient()
     helper.resSend(res, notifications)
   })
 
+  router.post('/getFollowers', passport.authenticate('authentication', { session: false }), async (req, res) => { 
+    let action = "";
+    action = "Returned followers"; 
+    helper.saveLog(action, req.user.Handle); 
+
+    const followers = await prisma.relationships.findMany({
+      where: {
+        FollowedID: req.body.userID
+      },  
+      include: {
+        users_relationships_FollowerIDTousers: {
+          include: {
+            relationships_relationships_FollowedIDTousers: true,
+            relationships_relationships_FollowerIDTousers: true
+          }
+        }
+      },
+      orderBy: {
+        DateCreated: 'desc'
+      },
+      skip: req.body.skip,
+      take: 15
+    }) 
+ 
+
+    followers.forEach((follower, index) => {
+      const following = follower.users_relationships_FollowerIDTousers.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); 
+      followers[index].users_relationships_FollowerIDTousers.Following = !!following  
+    });
+
+    helper.resSend(res, followers)
+  })
+
+  router.post('/getFollowing', passport.authenticate('authentication', { session: false }), async (req, res) => { 
+    let action = "";
+    action = "Returned following"; 
+    helper.saveLog(action, req.user.Handle); 
+
+    const following = await prisma.relationships.findMany({
+      where: {
+        FollowerID: req.body.userID
+      },  
+      include: {
+        users_relationships_FollowedIDTousers: {
+          include: {
+            relationships_relationships_FollowedIDTousers: true,
+            relationships_relationships_FollowerIDTousers: true
+          }
+        }
+      },
+      orderBy: {
+        DateCreated: 'desc'
+      },
+      skip: req.body.skip,
+      take: 15
+    }) 
+ 
+
+    following.forEach((follower, index) => {
+      const following_found = follower.users_relationships_FollowedIDTousers.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); 
+      following[index].users_relationships_FollowedIDTousers.Following = !!following_found
+    });
+
+    helper.resSend(res, following)
+  })
+
   function sortByUsernameAndHandle(array, searchTerm) {
     return array.sort((a, b) => {
       const aUsernameMatch = a.Username.toLowerCase().indexOf(searchTerm.toLowerCase());
