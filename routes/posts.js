@@ -317,4 +317,37 @@ router.post('/unlikePost', passport.authenticate('authentication', { session: fa
   helper.resSend(res)   
 })
 
+router.post('/deletePost', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+
+  let action = "Is trying to delete post with ID: " + req.body.ID;
+  helper.saveLog(action, req.user.Handle) 
+
+  delete_notifications = await prisma.notifications.deleteMany({
+    where: {
+      PostID: req.body.PostID
+    }
+  })
+
+  delete_comments = await prisma.comments.deleteMany({
+    where: {
+      PostID: req.body.PostID
+    }
+  })
+
+  delete_likes = await prisma.likes.deleteMany({
+    where: {
+      PostID: req.body.PostID
+    }
+  })
+
+  delete_post = await prisma.posts.deleteMany({
+    where: { 
+      ID: req.body.PostID,
+      AuthorID: req.user.ID
+    }
+  }) 
+
+  helper.resSend(res)   
+})
+
 module.exports = router
