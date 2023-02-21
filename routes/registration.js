@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
             Username: req.body.username,
             Handle: req.body.handle,
             Password: req.body.password,
-            ProfilePicture: "https://ih1.redbubble.net/image.4655171968.9673/st,small,507x507-pad,600x600,f8f8f8.jpg" + req.body.handle,
+            ProfilePicture: "https://api.dicebear.com/5.x/thumbs/svg?seed=" + req.body.handle,
             Banner: "http://michael.prietl.com/nebula-logo.png",
             SignUpDate: Date
         }
