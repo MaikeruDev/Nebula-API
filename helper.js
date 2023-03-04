@@ -50,7 +50,9 @@ module.exports = {
       return localTime
     },
 
-    async sendNotification (notificationType, senderID, recieverID, postID = undefined){ 
+    async sendNotification (notificationType, senderID, recieverID, postID = undefined){  
+
+      console.log(postID)
       
       already_exists = await prisma.notifications.findFirst({
         where: {
@@ -61,7 +63,11 @@ module.exports = {
         }
       })
 
-      if(senderID == recieverID || already_exists) return
+      if(senderID == recieverID && notificationType?.type != 'comment' || already_exists) return
+
+      const now = new Date();
+      const utcOffset = now.getTimezoneOffset() * 1000; // convert offset to milliseconds
+      const localTime = new Date(now.getTime() - utcOffset + (3600 * 1000)); // adjust for UTC+1
 
       send = await prisma.notifications.create({
         data: {
@@ -69,6 +75,7 @@ module.exports = {
           SenderID: senderID,
           RecieverID: recieverID,
           PostID: postID,
+          DateCreated: localTime
         }
       })
     },

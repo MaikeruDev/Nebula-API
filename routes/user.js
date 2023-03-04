@@ -177,7 +177,7 @@ const prisma = new PrismaClient()
     already_exists = await prisma.relationships.findFirst({
       where: {
         FollowedID: req.body.ID,
-        FollowerID: req.user.ID
+        FollowerID: req.user.ID,
       }
     })
   

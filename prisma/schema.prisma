@@ -40,6 +40,7 @@ model posts {
   DateCreated   DateTime        @default(now()) @db.DateTime(0)
   comments      comments[]
   likes         likes[]
+  mentions      mentions[]
   notifications notifications[]
   users         users           @relation(fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "posts_ibfk_1")
 
@@ -70,6 +71,8 @@ model users {
   Bio                                           String?         @db.VarChar(100)
   comments                                      comments[]
   likes                                         likes[]
+  mentions_mentions_AuthorIDTousers             mentions[]      @relation("mentions_AuthorIDTousers")
+  mentions_mentions_mentionedUserIDTousers      mentions[]      @relation("mentions_mentionedUserIDTousers")
   notifications_notifications_SenderIDTousers   notifications[] @relation("notifications_SenderIDTousers")
   notifications_notifications_RecieverIDTousers notifications[] @relation("notifications_RecieverIDTousers")
   posts                                         posts[]
@@ -92,4 +95,18 @@ model notifications {
   @@index([PostID], map: "PostID")
   @@index([RecieverID], map: "RecieverID")
   @@index([SenderID], map: "SenderID")
+}
+
+model mentions {
+  ID                                    Int   @id @default(autoincrement())
+  AuthorID                              Int
+  mentionedUserID                       Int
+  PostID                                Int
+  users_mentions_AuthorIDTousers        users @relation("mentions_AuthorIDTousers", fields: [AuthorID], references: [ID], onUpdate: Restrict, map: "mentions_ibfk_1")
+  users_mentions_mentionedUserIDTousers users @relation("mentions_mentionedUserIDTousers", fields: [mentionedUserID], references: [ID], onUpdate: Restrict, map: "mentions_ibfk_2")
+  posts                                 posts @relation(fields: [PostID], references: [ID], onUpdate: Restrict, map: "mentions_ibfk_3")
+
+  @@index([AuthorID], map: "AuthorID")
+  @@index([PostID], map: "PostID")
+  @@index([mentionedUserID], map: "mentionedUserID")
 }

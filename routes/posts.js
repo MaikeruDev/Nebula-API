@@ -112,6 +112,16 @@ router.post('/getPost', passport.authenticate('authentication', { session: false
           relationships_relationships_FollowedIDTousers: true,
           relationships_relationships_FollowerIDTousers: true
         }
+      },
+      mentions: {
+        include: {
+          users_mentions_mentionedUserIDTousers: {
+            include: { 
+              relationships_relationships_FollowedIDTousers: true,
+              relationships_relationships_FollowerIDTousers: true 
+            }
+          }
+        }
       }
     }
     }); 
@@ -140,6 +150,11 @@ router.post('/getPost', passport.authenticate('authentication', { session: false
     posts.comments.forEach((comment, index) => {
       const following_found = comment.users.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); // check if req user follows every comment author
       posts.comments[index].users.Following = !!following_found
+    }); 
+
+    posts.mentions.forEach((mention, index) => { 
+      const following_found = mention.users_mentions_mentionedUserIDTousers.relationships_relationships_FollowedIDTousers.find(el => el.FollowerID === req.user.ID); // check if req user follows every comment author
+      posts.mentions[index].users_mentions_mentionedUserIDTousers.Following = !!following_found
     }); 
 
     helper.resSend(res, posts)
@@ -234,13 +249,13 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
     }); 
     
     Image = "https://michael.prietl.com:3100/" + file_name + ".png";
-  }
+  }   
  
   let Text = req.body.Text;
   let AuthorID = req.user.ID;
   let Date = await helper.getTimeStamp()
 
-  await prisma.posts.create({
+  created_post = await prisma.posts.create({
     data: {
         Text: Text,
         Image: Image,
@@ -249,13 +264,33 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
     }
   })
 
+  let Mentions = req.body.Mentions
+
+  if(Mentions.length > 0){
+
+    Mentions.forEach(async m => {
+      await prisma.mentions.create({
+        data: {
+            AuthorID: req.user.ID,
+            mentionedUserID: m.ID,
+            PostID: created_post.ID
+        }
+      }) 
+
+      await helper.sendNotification(helper.notifications.mention, req.user.ID, m.ID, created_post.ID)
+
+    });
+  }
+
   helper.resSend(res)   
 })
 
 router.post('/newComment', passport.authenticate('authentication', { session: false }), async (req, res) => {  
 
   let action = "Is trying to create a comment on post: " + req.body.post.ID;
-  helper.saveLog(action, req.user.Handle)
+  helper.saveLog(action, req.user.Handle)  
+
+  helper.sendNotification(helper.notifications.comment, req.user.ID, req.body.post.AuthorID, req.body.post.ID)
     
   let Text = req.body.Text;  
   let Date = await helper.getTimeStamp()
@@ -322,6 +357,12 @@ router.post('/deletePost', passport.authenticate('authentication', { session: fa
   let action = "Is trying to delete post with ID: " + req.body.ID;
   helper.saveLog(action, req.user.Handle) 
 
+  delete_mentions = await prisma.mentions.deleteMany({
+    where: {
+      PostID: req.body.PostID
+    }
+  })
+
   delete_notifications = await prisma.notifications.deleteMany({
     where: {
       PostID: req.body.PostID
@@ -346,6 +387,20 @@ router.post('/deletePost', passport.authenticate('authentication', { session: fa
       AuthorID: req.user.ID
     }
   }) 
+
+  helper.resSend(res)   
+})
+
+router.post('/deleteComment', passport.authenticate('authentication', { session: false }), async (req, res) => {  
+
+  let action = "Is trying to delete comment with ID: " + req.body.ID;
+  helper.saveLog(action, req.user.Handle)  
+
+  await prisma.comments.delete({
+    where: {
+      ID: req.body.CommentID
+    }
+  })
 
   helper.resSend(res)   
 })
