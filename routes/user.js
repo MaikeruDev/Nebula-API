@@ -332,7 +332,7 @@ const prisma = new PrismaClient()
     });
 
     helper.resSend(res, following)
-  })
+  }) 
 
   function sortByUsernameAndHandle(array, searchTerm) {
     return array.sort((a, b) => {

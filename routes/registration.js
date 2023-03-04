@@ -92,6 +92,42 @@ router.post('/login', async (req, res) => {
         helper.resSend(res, null, helper.resStatuses.error, 'Wrong password!')
       }
     }
-  })
+})
+
+router.post('/changePassword', passport.authenticate('authentication', { session: false }), async (req, res) => { 
+  let action = "";
+  action = "Trying to change password"; 
+  helper.saveLog(action, req.user.Handle); 
+
+  old_pw = req.body.old_pw 
+  new_pw = req.body.new_pw
+  rp_new_pw = req.body.rp_new_pw
+
+  const user = await prisma.users.findFirst({
+    where: { ID: req.user.ID }
+  }) 
+
+  if(old_pw != user.Password){
+    helper.resSend(res, [], helper.resStatuses.error, "Old Password is incorrect.")
+  }
+
+  else if(new_pw != rp_new_pw){
+    helper.resSend(res, [], helper.resStatuses.error, "Passwords do not match.")
+  } 
+
+  else{
+    await prisma.users.update({
+      where: {
+        ID: req.user.ID
+      },
+      data: {
+        Password: new_pw
+      }
+    })
+    
+    helper.resSend(res, [], helper.resStatuses.ok) 
+  }
+
+})
 
 module.exports = router
