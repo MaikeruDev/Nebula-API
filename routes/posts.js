@@ -251,17 +251,16 @@ router.post('/newPost', passport.authenticate('authentication', { session: false
     Image = "https://michael.prietl.com:3100/" + file_name + ".png";
   }   
  
-  let Text = req.body.Text;
-  let AuthorID = req.user.ID;
-  let Date = await helper.getTimeStamp()
+  let Text = req.body.Text;  
+  let Date = await helper.getTimeStamp() 
 
   created_post = await prisma.posts.create({
     data: {
-        Text: Text,
-        Image: Image,
-        AuthorID: AuthorID,
-        DateCreated: Date
-    }
+      Text: Text,
+      Image: Image, 
+      DateCreated: Date,
+      AuthorID: req.user.ID,
+  }
   })
 
   let Mentions = req.body.Mentions
